@@ -1,6 +1,8 @@
 // src/CsvDataGrid.tsx
 'use client'
 
+import './CsvDataGrid.css'
+
 import React, {
   useState,
   useMemo,
@@ -127,6 +129,10 @@ const CSV_THEME_VARS: Record<string, string> = {
   '--csv-theme-text-success': 'var(--csv-text-success, #4ade80)',
   '--csv-theme-text-accent': 'var(--csv-text-accent, #3794ff)',
   '--csv-theme-bg-checkbox': 'var(--csv-bg-checkbox, #1f1f1f)',
+}
+
+function cx(...parts: Array<string | false | null | undefined>) {
+  return parts.filter(Boolean).join(' ')
 }
 
 const normalizeColumnWidth = (width?: number) => {
@@ -1201,17 +1207,14 @@ export default function CsvDataGrid({
 
   /* render --------------------------------------------------- */
   return (
-    <div
-      className={`csv-data-grid flex-1 flex flex-col min-h-0 relative ${className ?? ''}`}
-      style={rootStyle}
-    >
+    <div className={cx('csv-data-grid', className)} style={rootStyle}>
       {/* toolbar */}
-      <div className="px-3 py-1 text-xs bg-[var(--csv-theme-surface-toolbar)] border-b border-[var(--csv-theme-border-toolbar)] flex items-center justify-between gap-2">
-        <div className="flex items-center gap-3 flex-1">
-          <span className="text-[var(--csv-theme-text-muted)] whitespace-nowrap flex items-center gap-2">
+      <div className="csvdg-toolbar">
+        <div className="csvdg-toolbar-main">
+          <span className="csvdg-toolbar-meta">
             {dirty && (
               <span
-                className="inline-flex h-1.5 w-1.5 rounded-full bg-amber-400/60"
+                className="csvdg-dirty-dot"
                 aria-label="Unsaved changes"
                 title="Unsaved changes"
               />
@@ -1223,47 +1226,45 @@ export default function CsvDataGrid({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Find…"
-            className="rounded px-2 py-0.5 text-xs bg-[var(--csv-theme-surface-muted)] border border-[var(--csv-theme-border-primary)] text-[var(--csv-theme-text-primary)] focus:outline-none"
+            className="csvdg-input csvdg-search-input"
             style={{ minWidth: 220, maxWidth: 350 }}
           />
           {(selectedRows.size > 0 || selectedCols.size > 0) && (
-            <span className="text-[11px] text-[var(--csv-theme-text-muted)] whitespace-nowrap">
+            <span className="csvdg-selection-summary">
               Selected: {selectedRows.size} row
               {selectedRows.size === 1 ? '' : 's'} · {selectedCols.size} col
               {selectedCols.size === 1 ? '' : 's'}
             </span>
           )}
           {saveError && (
-            <span className="text-[11px] text-[var(--csv-theme-text-danger)] whitespace-nowrap">
-              {saveError}
-            </span>
+            <span className="csvdg-error-text">{saveError}</span>
           )}
         </div>
-        <div className="flex items-center gap-1">
+        <div className="csvdg-toolbar-actions">
           <button
             onClick={deleteSelectedRows}
             disabled={selectedRows.size === 0}
-            className="px-2 py-0.5 bg-[var(--csv-theme-surface-muted)] hover:bg-[var(--csv-theme-surface-muted-hover)] border border-[var(--csv-theme-border-primary)] rounded text-[var(--csv-theme-text-primary)] text-xs cursor-pointer flex items-center gap-1 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="csvdg-button"
             type="button"
             title="Delete selected rows"
           >
-            <Trash2 className="w-3 h-3" />
+            <Trash2 size={12} />
             Rows
           </button>
           <button
             onClick={deleteSelectedColumns}
             disabled={selectedCols.size === 0}
-            className="px-2 py-0.5 bg-[var(--csv-theme-surface-muted)] hover:bg-[var(--csv-theme-surface-muted-hover)] border border-[var(--csv-theme-border-primary)] rounded text-[var(--csv-theme-text-primary)] text-xs cursor-pointer flex items-center gap-1 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="csvdg-button"
             type="button"
             title="Delete selected columns"
           >
-            <Trash2 className="w-3 h-3" />
+            <Trash2 size={12} />
             Columns
           </button>
           <button
             onClick={clearSelections}
             disabled={selectedRows.size === 0 && selectedCols.size === 0}
-            className="px-2 py-0.5 bg-[var(--csv-theme-surface-muted)] hover:bg-[var(--csv-theme-surface-muted-hover)] border border-[var(--csv-theme-border-primary)] rounded text-[var(--csv-theme-text-primary)] text-xs cursor-pointer flex items-center gap-1 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="csvdg-button"
             type="button"
             title="Clear selection"
           >
@@ -1273,53 +1274,49 @@ export default function CsvDataGrid({
             <button
               onClick={handleSave}
               disabled={!canSave}
-              className={`px-2 py-0.5 border rounded text-xs flex items-center gap-1 ${
-                canSave
-                  ? 'bg-[var(--csv-theme-surface-muted)] hover:bg-[var(--csv-theme-surface-muted-hover)] border-[var(--csv-theme-border-primary)] text-[var(--csv-theme-text-primary)] cursor-pointer'
-                  : 'bg-[var(--csv-theme-surface-muted)] border-[var(--csv-theme-border-primary)] text-[var(--csv-theme-text-primary)] opacity-40 cursor-not-allowed'
-              }`}
+              className="csvdg-button"
               type="button"
               title="Save changes"
             >
-              <SaveIcon className="w-3 h-3" />
+              <SaveIcon size={12} />
               Save
             </button>
           )}
           {justSaved && (
-            <span className="flex items-center gap-1 text-[var(--csv-theme-text-success)] text-xs">
-              <Check className="w-3 h-3" /> Saved
+            <span className="csvdg-status">
+              <Check size={12} /> Saved
             </span>
           )}
           {onEdit && (
             <button
               onClick={handleEditClick}
-              className="px-2 py-0.5 bg-[var(--csv-theme-surface-muted)] hover:bg-[var(--csv-theme-surface-muted-hover)] border border-[var(--csv-theme-border-primary)] rounded text-[var(--csv-theme-text-primary)] text-xs cursor-pointer flex items-center gap-1"
+              className="csvdg-button"
               type="button"
             >
-              <Pencil className="w-3 h-3" />
+              <Pencil size={12} />
               Edit
             </button>
           )}
           {onDownload && (
             <button
               onClick={onDownload}
-              className="px-2 py-0.5 bg-[var(--csv-theme-surface-muted)] hover:bg-[var(--csv-theme-surface-muted-hover)] border border-[var(--csv-theme-border-primary)] rounded text-[var(--csv-theme-text-primary)] text-xs flex items-center gap-1"
+              className="csvdg-button"
               type="button"
             >
-              <Download className="w-3 h-3" />
+              <Download size={12} />
               Download
             </button>
           )}
           {onClose && (
             <button
               onClick={handleClose}
-              className="px-1 py-0.5 bg-[var(--csv-theme-surface-muted)] cursor-pointer hover:bg-[var(--csv-theme-surface-muted-hover)] border border-[var(--csv-theme-border-primary)] rounded text-[var(--csv-theme-text-primary)] text-xs flex items-center"
+              className="csvdg-button csvdg-button--icon"
               title="Close file"
               aria-label="Close file"
               tabIndex={0}
               type="button"
             >
-              <X className="w-3 h-4" />
+              <X size={12} />
             </button>
           )}
         </div>
@@ -1327,20 +1324,20 @@ export default function CsvDataGrid({
 
       {/* grid */}
       <div
-        className="flex-1 min-h-0 overflow-auto bg-[var(--csv-theme-surface-toolbar)] relative"
+        className="csvdg-grid-scroll"
         ref={tableContainerRef}
         tabIndex={0}
         onKeyDown={handleKeyDown}
         onContextMenu={handleEmptyBodyContextMenu}
       >
         {isLoading ? (
-          <div className="absolute inset-0 bg-[var(--csv-theme-surface-overlay)] flex items-center justify-center z-30">
-            <span className="text-[var(--csv-theme-text-subtle)] text-sm">Loading…</span>
+          <div className="csvdg-loading-overlay">
+            <span className="csvdg-overlay-label">Loading…</span>
           </div>
         ) : (
-          <div className="min-w-max">
+          <div className="csvdg-table-wrap">
             <table
-              className="border border-[var(--csv-theme-border-toolbar)] text-xs text-[var(--csv-theme-text-primary)] border-collapse table-fixed"
+              className="csvdg-table"
               style={{ ...monoFontStyle, width: tableWidth }}
             >
               <colgroup>
@@ -1353,7 +1350,7 @@ export default function CsvDataGrid({
               <thead>
                 <tr>
                   <th
-                    className="sticky top-0 z-20 bg-[var(--csv-theme-surface-toolbar)] border border-[var(--csv-theme-border-primary)] px-2 py-1 text-[11px] text-[var(--csv-theme-text-muted)] text-center"
+                    className="csvdg-count-header"
                     style={{
                       width: COUNT_COL_WIDTH,
                       minWidth: COUNT_COL_WIDTH,
@@ -1396,21 +1393,19 @@ export default function CsvDataGrid({
                           startColumnResize(event, i, width)
                         }}
                         style={{ width, minWidth: width, maxWidth: width }}
-                        className={`sticky top-0 z-20 border border-[var(--csv-theme-border-primary)] px-2 py-1 font-bold text-[var(--csv-theme-text-primary)] text-xs select-none transition-colors relative ${
-                          isSelected
-                            ? 'bg-[var(--csv-theme-surface-selected)]'
-                            : 'bg-[var(--csv-theme-surface-toolbar)]'
-                        } ${
-                          resizeIntent?.colIndex === i && resizeIntent.isActive
-                            ? 'cursor-col-resize'
-                            : ''
-                        }`}
+                        className={cx(
+                          'csvdg-header-cell',
+                          isSelected && 'csvdg-header-cell--selected',
+                          resizeIntent?.colIndex === i &&
+                            resizeIntent.isActive &&
+                            'csvdg-header-cell--resize-intent',
+                        )}
                       >
-                        <div className="flex items-center gap-1">
+                        <div className="csvdg-header-content">
                           <input
                             type="checkbox"
                             aria-label="Select column"
-                            className="h-3 w-3 m-0 cursor-pointer border border-[var(--csv-theme-border-secondary)] rounded"
+                            className="csvdg-checkbox"
                             style={{ accentColor: 'var(--csv-theme-bg-checkbox)' }}
                             checked={isSelected}
                             onClick={(event) => {
@@ -1427,13 +1422,13 @@ export default function CsvDataGrid({
                                 updateHeaderCell(i, event.target.value)
                               }
                               placeholder="Add header…"
-                              className="bg-transparent w-full text-[var(--csv-theme-text-primary)] outline-none"
+                              className="csvdg-header-input"
                               onFocus={() =>
                                 setActiveCell({ rowIndex: -1, colIndex: i })
                               }
                             />
                           ) : (
-                            <span className="text-[var(--csv-theme-text-subtle)]">{cell}</span>
+                            <span className="csvdg-header-placeholder">{cell}</span>
                           )}
                           {isSelected && (
                             <button
@@ -1447,9 +1442,9 @@ export default function CsvDataGrid({
                                 setDraggingCol(i)
                               }}
                               onDragEnd={() => setDraggingCol(null)}
-                              className="text-[var(--csv-theme-text-muted)] hover:text-[var(--csv-theme-text-subtle)] cursor-grab active:cursor-grabbing"
+                              className="csvdg-icon-button csvdg-icon-button--drag"
                             >
-                              <GripVertical className="w-3 h-3" />
+                              <GripVertical size={12} />
                             </button>
                           )}
                           <button
@@ -1459,35 +1454,35 @@ export default function CsvDataGrid({
                               handleHeaderClick(i)
                             }}
                             aria-label="Sort column"
-                            className="text-[var(--csv-theme-text-muted)] hover:text-[var(--csv-theme-text-subtle)]"
+                            className="csvdg-icon-button csvdg-icon-button--sort"
                             title="Sort column"
                           >
                             {sortCol === i ? (
                               sortAsc ? (
                                 <ChevronUp
                                   size={13}
-                                  className="inline -mt-0.5 opacity-60"
+                                  className="csvdg-sort-icon csvdg-sort-icon--active"
                                 />
                               ) : (
                                 <ChevronDown
                                   size={13}
-                                  className="inline -mt-0.5 opacity-60"
+                                  className="csvdg-sort-icon csvdg-sort-icon--active"
                                 />
                               )
                             ) : (
                               <ChevronUp
                                 size={13}
-                                className="inline -mt-0.5 opacity-25"
+                                className="csvdg-sort-icon"
                               />
                             )}
                           </button>
                         </div>
                         <div
-                          className={`absolute right-0 top-0 h-full w-1.5 ${
-                            resizeIntent?.colIndex === i
-                              ? 'bg-[var(--csv-theme-surface-accent)] opacity-60'
-                              : 'bg-transparent'
-                          }`}
+                          className={cx(
+                            'csvdg-resize-handle',
+                            resizeIntent?.colIndex === i &&
+                              'csvdg-resize-handle--active',
+                          )}
                           onMouseDown={(event) => {
                             event.stopPropagation()
                             startColumnResize(event, i, width)
@@ -1499,7 +1494,7 @@ export default function CsvDataGrid({
                     )
                   })}
                   <th
-                    className="sticky top-0 z-20 bg-[var(--csv-theme-surface-toolbar)] border border-[var(--csv-theme-border-primary)] px-2 py-1 text-center"
+                    className="csvdg-action-header"
                     style={{
                       width: ACTION_COL_WIDTH,
                       minWidth: ACTION_COL_WIDTH,
@@ -1509,17 +1504,17 @@ export default function CsvDataGrid({
                     <button
                       type="button"
                       onClick={addColumn}
-                      className="inline-flex items-center justify-center w-6 h-6 rounded bg-[var(--csv-theme-surface-muted)] hover:bg-[var(--csv-theme-surface-muted-hover)] border border-[var(--csv-theme-border-primary)] text-[var(--csv-theme-text-primary)]"
+                      className="csvdg-icon-button csvdg-add-column-button"
                       aria-label="Add column"
                       title="Add column"
                     >
-                      <Plus className="w-3 h-3" />
+                      <Plus size={12} />
                     </button>
                   </th>
                 </tr>
                 <tr>
                   <th
-                    className="sticky top-[30px] z-20 bg-[var(--csv-theme-surface-toolbar)] border border-[var(--csv-theme-border-primary)] px-2 py-1 text-[11px] text-[var(--csv-theme-text-muted)] text-center"
+                    className="csvdg-filter-label-cell"
                     style={{
                       width: COUNT_COL_WIDTH,
                       minWidth: COUNT_COL_WIDTH,
@@ -1533,7 +1528,7 @@ export default function CsvDataGrid({
                     return (
                       <th
                         key={`filter-${i}`}
-                        className="sticky top-[30px] z-20 bg-[var(--csv-theme-surface-toolbar)] border border-[var(--csv-theme-border-primary)] px-1 py-1"
+                        className="csvdg-filter-cell"
                         style={{ width, minWidth: width, maxWidth: width }}
                       >
                         <input
@@ -1547,13 +1542,13 @@ export default function CsvDataGrid({
                             })
                           }}
                           placeholder="Contains…"
-                          className="w-full rounded px-1.5 py-0.5 text-[11px] bg-[var(--csv-theme-surface-muted)] border border-[var(--csv-theme-border-primary)] text-[var(--csv-theme-text-primary)] focus:outline-none"
+                          className="csvdg-filter-input"
                         />
                       </th>
                     )
                   })}
                   <th
-                    className="sticky top-[30px] z-20 bg-[var(--csv-theme-surface-toolbar)] border border-[var(--csv-theme-border-primary)] px-1 py-1 text-center"
+                    className="csvdg-filter-action-cell"
                     style={{
                       width: ACTION_COL_WIDTH,
                       minWidth: ACTION_COL_WIDTH,
@@ -1565,7 +1560,7 @@ export default function CsvDataGrid({
                       onClick={() =>
                         setColumnFilters(Array.from({ length: maxCols }, () => ''))
                       }
-                      className="px-1 py-0.5 text-[10px] rounded border border-[var(--csv-theme-border-primary)] bg-[var(--csv-theme-surface-muted)] hover:bg-[var(--csv-theme-surface-muted-hover)]"
+                      className="csvdg-clear-button"
                       title="Clear column filters"
                     >
                       Clear
@@ -1580,13 +1575,14 @@ export default function CsvDataGrid({
                     <tr
                       key={rowIndex}
                       data-row-index={rowIndex}
-                      className={
+                      className={cx(
+                        'csvdg-row',
                         isRowSelected
-                          ? 'bg-[var(--csv-theme-surface-selected)]'
+                          ? 'csvdg-row--selected'
                           : i % 2 === 0
-                            ? 'bg-[var(--csv-theme-surface-row-even)]'
-                            : 'bg-[var(--csv-theme-surface-row-odd)]'
-                      }
+                            ? 'csvdg-row--even'
+                            : 'csvdg-row--odd',
+                      )}
                       onContextMenu={(event) =>
                         openRowContextMenu(event, rowIndex)
                       }
@@ -1597,14 +1593,15 @@ export default function CsvDataGrid({
                           minWidth: COUNT_COL_WIDTH,
                           maxWidth: COUNT_COL_WIDTH,
                         }}
-                        className={`border border-[var(--csv-theme-border-toolbar)] px-2 py-1 text-[11px] text-[var(--csv-theme-text-muted)] select-none bg-[var(--csv-theme-surface-toolbar)] ${
-                          isRowSelected ? 'ring-1 ring-[var(--csv-theme-border-accent)]' : ''
-                        }`}
+                        className={cx(
+                          'csvdg-row-index-cell',
+                          isRowSelected && 'csvdg-row-index-cell--selected',
+                        )}
                       >
-                        <label className="flex items-center justify-center gap-1 cursor-pointer">
+                        <label className="csvdg-row-index-label">
                           <input
                             type="checkbox"
-                            className="h-3 w-3 m-0 cursor-pointer border border-[var(--csv-theme-border-secondary)] rounded"
+                            className="csvdg-checkbox"
                             style={{ accentColor: 'var(--csv-theme-bg-checkbox)' }}
                             checked={isRowSelected}
                             onClick={(event) => {
@@ -1637,15 +1634,12 @@ export default function CsvDataGrid({
                             key={`${rowIndex}-${j}`}
                             data-row-index={rowIndex}
                             onMouseEnter={() => extendFillDragToRow(rowIndex, j)}
-                            className={`border border-[var(--csv-theme-border-toolbar)] px-2 py-1 whitespace-pre transition-colors duration-75 relative ${
-                              isCellSelected
-                                ? 'bg-[var(--csv-theme-surface-selected)]'
-                                : ''
-                            } ${
-                              isFillRange
-                                ? 'bg-[var(--csv-theme-surface-accent-soft)] ring-1 ring-[var(--csv-theme-border-accent)]'
-                                : ''
-                            } ${isFillOrigin ? 'ring-2 ring-[var(--csv-theme-border-accent)]' : ''}`}
+                            className={cx(
+                              'csvdg-cell',
+                              isCellSelected && 'csvdg-cell--selected',
+                              isFillRange && 'csvdg-cell--fill-range',
+                              isFillOrigin && 'csvdg-cell--fill-origin',
+                            )}
                             style={{
                               width,
                               minWidth: width,
@@ -1663,9 +1657,11 @@ export default function CsvDataGrid({
                               onFocus={() =>
                                 setActiveCell({ rowIndex, colIndex: j })
                               }
-                              className={`bg-transparent w-full outline-none text-[var(--csv-theme-text-primary)] ${
-                                isActive ? 'ring-1 ring-[var(--csv-theme-border-accent)]' : ''
-                              } ${isFillRange ? 'font-semibold' : ''}`}
+                              className={cx(
+                                'csvdg-cell-input',
+                                isActive && 'csvdg-cell-input--active',
+                                isFillRange && 'csvdg-cell-input--fill-range',
+                              )}
                             />
                             {isActive && (
                               <button
@@ -1675,7 +1671,7 @@ export default function CsvDataGrid({
                                 onMouseDown={(event) =>
                                   startFillDrag(event, rowIndex, j)
                                 }
-                                className="absolute bottom-0 right-0 w-2 h-2 bg-[var(--csv-theme-surface-accent)] border border-[var(--csv-theme-border-primary)] rounded-sm cursor-crosshair hover:cursor-crosshair"
+                                className="csvdg-fill-handle"
                               />
                             )}
                           </td>
@@ -1688,16 +1684,14 @@ export default function CsvDataGrid({
             </table>
 
             {sortedRows.length === 0 && (
-              <div className="text-xs text-[var(--csv-theme-text-muted)] p-4">
-                No matching rows.
-              </div>
+              <div className="csvdg-empty-state">No matching rows.</div>
             )}
           </div>
         )}
-        <div className="sticky bottom-0 z-30 bg-[var(--csv-theme-surface-toolbar)] border-t border-[var(--csv-theme-border-primary)]">
-          <div className="min-w-max">
+        <div className="csvdg-totals-wrap">
+          <div className="csvdg-table-wrap">
             <table
-              className="border border-[var(--csv-theme-border-toolbar)] text-xs text-[var(--csv-theme-text-primary)] border-collapse table-fixed"
+              className="csvdg-table csvdg-totals-table"
               style={{ ...monoFontStyle, width: tableWidth }}
             >
               <colgroup>
@@ -1708,9 +1702,9 @@ export default function CsvDataGrid({
                 <col style={{ width: ACTION_COL_WIDTH }} />
               </colgroup>
               <tbody>
-                <tr className="bg-[var(--csv-theme-surface-toolbar)]">
+                <tr className="csvdg-totals-row">
                   <td
-                    className="border border-[var(--csv-theme-border-toolbar)] px-2 py-1 text-[11px] text-[var(--csv-theme-text-muted)] text-center bg-[var(--csv-theme-surface-toolbar)]"
+                    className="csvdg-totals-label-cell"
                     style={{
                       width: COUNT_COL_WIDTH,
                       minWidth: COUNT_COL_WIDTH,
@@ -1725,7 +1719,7 @@ export default function CsvDataGrid({
                     return (
                       <td
                         key={`totals-${colIndex}`}
-                        className="border border-[var(--csv-theme-border-toolbar)] px-2 py-1 text-[var(--csv-theme-text-primary)] font-semibold bg-[var(--csv-theme-surface-toolbar)]"
+                        className="csvdg-totals-value-cell"
                         style={{
                           width,
                           minWidth: width,
@@ -1739,7 +1733,7 @@ export default function CsvDataGrid({
                     )
                   })}
                   <td
-                    className="border border-[var(--csv-theme-border-toolbar)] px-2 py-1 bg-[var(--csv-theme-surface-toolbar)]"
+                    className="csvdg-totals-spacer"
                     style={{
                       width: ACTION_COL_WIDTH,
                       minWidth: ACTION_COL_WIDTH,
@@ -1753,7 +1747,7 @@ export default function CsvDataGrid({
         </div>
         {rowContextMenu && (
           <div
-            className="absolute z-40 rounded border border-[var(--csv-theme-border-primary)] bg-[var(--csv-theme-surface-muted)] text-xs text-[var(--csv-theme-text-primary)] shadow-lg min-w-[160px]"
+            className="csvdg-context-menu"
             style={{ left: rowContextMenu.x, top: rowContextMenu.y }}
             role="menu"
             ref={rowMenuRef}
@@ -1761,40 +1755,40 @@ export default function CsvDataGrid({
             {rowContextMenu.rowIndex === null ? (
               <button
                 type="button"
-                className="w-full px-3 py-2 text-left hover:bg-[var(--csv-theme-surface-muted-hover)] flex items-center gap-2"
+                className="csvdg-context-button"
                 onClick={() => {
                   insertRowAt(0)
                   setRowContextMenu(null)
                 }}
               >
-                <Plus className="w-3 h-3" /> + Row
+                <Plus size={12} /> + Row
               </button>
             ) : (
               <>
                 <button
                   type="button"
-                  className="w-full px-3 py-2 text-left hover:bg-[var(--csv-theme-surface-muted-hover)] flex items-center gap-2"
+                  className="csvdg-context-button"
                   onClick={() => {
                     addRowAbove()
                     setRowContextMenu(null)
                   }}
                 >
-                  <Plus className="w-3 h-3" /> + Row above
+                  <Plus size={12} /> + Row above
                 </button>
                 <button
                   type="button"
-                  className="w-full px-3 py-2 text-left hover:bg-[var(--csv-theme-surface-muted-hover)] flex items-center gap-2"
+                  className="csvdg-context-button"
                   onClick={() => {
                     addRowBelow()
                     setRowContextMenu(null)
                   }}
                 >
-                  <Plus className="w-3 h-3" /> + Row below
+                  <Plus size={12} /> + Row below
                 </button>
-                <div className="border-t border-[var(--csv-theme-border-primary)] opacity-40" />
+                <div className="csvdg-context-divider" />
                 <button
                   type="button"
-                  className="w-full px-3 py-2 text-left hover:bg-[var(--csv-theme-surface-muted-hover)] flex items-center gap-2 text-[var(--csv-theme-text-danger)]"
+                  className="csvdg-context-button csvdg-context-button--danger"
                   onClick={() => {
                     if (rowContextMenu.rowIndex !== null) {
                       deleteRowAt(rowContextMenu.rowIndex)
@@ -1802,7 +1796,7 @@ export default function CsvDataGrid({
                     setRowContextMenu(null)
                   }}
                 >
-                  <Trash2 className="w-3 h-3" /> Delete row
+                  <Trash2 size={12} /> Delete row
                 </button>
               </>
             )}
@@ -1812,13 +1806,13 @@ export default function CsvDataGrid({
 
       {/* overlay while switching */}
       {switching && (
-        <div className="absolute inset-0 bg-[var(--csv-theme-surface-overlay)] flex flex-col items-center justify-center z-50">
+        <div className="csvdg-switching-overlay">
           <svg
-            className="animate-spin h-6 w-6 text-[var(--csv-theme-text-accent)] mb-3"
+            className="csvdg-spinner"
             viewBox="0 0 24 24"
           >
             <circle
-              className="opacity-25"
+              className="csvdg-spinner-track"
               cx="12"
               cy="12"
               r="10"
@@ -1827,14 +1821,12 @@ export default function CsvDataGrid({
               fill="none"
             />
             <path
-              className="opacity-75"
+              className="csvdg-spinner-head"
               fill="currentColor"
               d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
             />
           </svg>
-          <span className="text-[var(--csv-theme-text-subtle)] text-sm">
-            Opening editor…
-          </span>
+          <span className="csvdg-overlay-label">Opening editor…</span>
         </div>
       )}
     </div>

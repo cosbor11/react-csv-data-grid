@@ -11,12 +11,13 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
-    }
+    },
+    "./styles.css": "./dist/index.css"
   },
   "files": [
     "dist"
   ],
-  "sideEffects": false,
+  "sideEffects": ["**/*.css"],
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts",
     "prepack": "npm run build",
@@ -27,7 +28,7 @@
     "react",
     "csv",
     "data-grid",
-    "tailwind",
+    "editable-table",
     "table"
   ],
   "author": "Chris Osborn",

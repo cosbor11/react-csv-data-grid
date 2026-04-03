@@ -15,25 +15,12 @@ Peer dependencies:
 - `react`
 - `react-dom`
 
-## Tailwind Requirement
+The package ships its own CSS. Most bundlers will load it automatically when you import the component package.
 
-This component uses Tailwind utility classes for its layout and interaction styling.
+If your setup requires explicit stylesheet imports, add:
 
-Your app should:
-
-1. Have Tailwind CSS configured.
-2. Include this package in your Tailwind content scan so the utility classes are emitted.
-
-Example:
-
-```js
-// tailwind.config.js
-export default {
-  content: [
-    './src/**/*.{js,ts,jsx,tsx}',
-    './node_modules/@cosbor11/react-csv-data-grid/dist/**/*.{js,mjs,cjs}',
-  ],
-}
+```tsx
+import '@cosbor11/react-csv-data-grid/styles.css'
 ```
 
 ## Usage
@@ -64,6 +51,8 @@ export function Example() {
   )
 }
 ```
+
+No Tailwind setup is required.
 
 ## Theming
 
