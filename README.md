@@ -7,7 +7,7 @@ Package name: `@cosbor11/react-csv-data-grid`
 ## Install
 
 ```bash
-npm install @cosbor11/react-csv-data-grid lucide-react
+npm install @cosbor11/react-csv-data-grid
 ```
 
 Peer dependencies:
@@ -15,11 +15,18 @@ Peer dependencies:
 - `react`
 - `react-dom`
 
-The package ships its own CSS. Most bundlers will load it automatically when you import the component package.
+The package ships its own CSS, but consumers should explicitly import the stylesheet from their app entry or root layout. This is the reliable setup for Next.js and avoids unstyled markup if your bundler does not automatically include library CSS.
 
-If your setup requires explicit stylesheet imports, add:
+Add:
 
 ```tsx
+import '@cosbor11/react-csv-data-grid/styles.css'
+```
+
+For example, in Next.js App Router:
+
+```tsx
+// app/layout.tsx
 import '@cosbor11/react-csv-data-grid/styles.css'
 ```
 
@@ -28,6 +35,7 @@ import '@cosbor11/react-csv-data-grid/styles.css'
 ```tsx
 import { useState } from 'react'
 import { CsvDataGrid } from '@cosbor11/react-csv-data-grid'
+import '@cosbor11/react-csv-data-grid/styles.css'
 
 export function Example() {
   const [content, setContent] = useState('name,amount\nAlice,10\nBob,25')
